@@ -1,0 +1,37 @@
+services:
+
+  mongodb:
+    container_name: mongodb
+    image: mongodb/mongodb-community-server:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=mongo123
+    ports:
+      - "27027:27017"
+    networks:
+      - mongo
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok'
+      timeout: 20s
+      retries: 10
+
+  python-mongo:
+    container_name: python-mongo
+    image: python-mongo:latest
+#    build: ./  # this shall create a docker image using DOckerfile present in the current directory.
+    networks:
+      - mongo
+    volumes:
+      - /root/Script/shell-scripts/Docker/Python/test-2-api/data/:/data/
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+      
+networks:
+  mongo:
+    external: true
+    name: mongo
+
+
